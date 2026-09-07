@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: jaz-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jaz
+      POSTGRES_PASSWORD: jaz_dev_password
+      POSTGRES_DB: jazcontortion
+    ports:
+      - "5433:5432"
+    volumes:
+      - jaz_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  jaz_postgres_data:

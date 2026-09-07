@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  passwordHash  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  purchases      Purchase[]
+  entitlements   Entitlement[]
+  lessonProgress LessonProgress[]
+  accounts       Account[]
+  sessions       Session[]
+  transactions   Transaction[]
+  role           UserRole   @default(USER)  
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Program {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  tagline     String
+  description String
+  price       Int
+  image       String
+  level       String
+  includes    String[]
+  goals       String[]
+  type        String
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  modules      Module[]
+  purchases    Purchase[]
+  entitlements Entitlement[]
+  transactions Transaction[]
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  programId String
+  title     String
+  description String?
+  position  Int
+
+  program Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([programId, position])
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  moduleId    String
+  title       String
+  description String?
+  videoUrl    String?
+  content     String?
+  position    Int
+  
+  muxAssetId    String?
+  muxPlaybackId String?
+  muxUploadId   String?
+  muxStatus     String?
+
+  module   Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+
+  @@unique([moduleId, position])
+}
+
+model Purchase {
+  id              String   @id @default(cuid())
+  userId          String
+  programId       String
+  amount          Int
+  currency        String   @default("GHS")
+  provider        String
+  providerReference String @unique
+  status          String
+  createdAt       DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  program Program @relation(fields: [programId], references: [id])
+}
+
+model Entitlement {
+  id        String   @id @default(cuid())
+  userId    String
+  programId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programId])
+}
+
+model LessonProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  lessonId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  programId   String
+  amount      Int
+  currency    String   @default("GHS")
+  provider    String
+  providerReference String @unique
+  status      String
+  createdAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  program Program @relation(fields: [programId], references: [id])
+}
+
+// Webhook event tracker to provide basic idempotency for external webhooks.
+model WebhookEvent {
+  id        String   @id
+  createdAt DateTime @default(now())
+}
