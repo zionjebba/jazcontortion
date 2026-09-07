@@ -1,4 +1,4 @@
-import { PrismaClient } from "./src/generated/prisma/client/index.js";
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 const connectionString = "postgres://postgres:postgres@localhost:5432/postgres"; // dummy
 const adapter = new PrismaPg({ connectionString });
