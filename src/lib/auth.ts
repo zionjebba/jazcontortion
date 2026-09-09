@@ -60,6 +60,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
 
@@ -67,37 +68,37 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt" as const,
   },
 
-callbacks: {
-  async jwt({ token, user }) {
-    if (user) {
-      token.id = user.id;
-    }
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
 
-    if (token.id) {
-      const dbUser = await prisma.user.findUnique({
-        where: {
-          id: token.id as string,
-        },
-        select: {
-          role: true,
-        },
-      });
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: {
+            id: token.id as string,
+          },
+          select: {
+            role: true,
+          },
+        });
 
-      token.role = dbUser?.role ?? "USER";
-    }
+        token.role = dbUser?.role ?? "USER";
+      }
 
-    return token;
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as "USER" | "ADMIN";
+      }
+
+      return session;
+    },
   },
-
-  async session({ session, token }) {
-    if (session.user) {
-      session.user.id = token.id as string;
-      session.user.role = token.role as "USER" | "ADMIN";
-    }
-
-    return session;
-  },
-},
 
   secret: process.env.NEXTAUTH_SECRET,
 };
