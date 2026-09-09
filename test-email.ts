@@ -11,7 +11,7 @@ async function testEmails() {
     // Test 1: Welcome Email
     await sendWelcomeEmail(email, {
       userName: "Jaz (Test)",
-      loginUrl: "http://localhost:3000/login",
+      loginUrl: "https://jazcontortion.vercel.app/login",
     });
     console.log("✅ Welcome Email sent successfully!");
 
@@ -21,7 +21,7 @@ async function testEmails() {
       programTitle: "The Flex Mastery Program",
       amount: 199.99,
       currency: "USD",
-      accessUrl: "http://localhost:3000/account",
+      accessUrl: "https://jazcontortion.vercel.app/account",
     });
     console.log("✅ Receipt Email sent successfully!");
     

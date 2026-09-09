@@ -183,7 +183,7 @@ export async function fulfillPaystackTransaction(reference: string) {
     };
   });
 
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXTAUTH_URL || "https://jazcontortion.vercel.app";
 
   // Fire-and-forget receipt email
   sendReceiptEmail(transaction.user.email, {

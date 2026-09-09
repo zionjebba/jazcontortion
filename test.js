@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-const connectionString = "postgres://postgres:postgres@localhost:5432/postgres"; // dummy
+const connectionString = "postgresql://neondb_owner:npg_S5TsjFae4ynD@ep-flat-cell-aywky08g-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"; // dummy
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
